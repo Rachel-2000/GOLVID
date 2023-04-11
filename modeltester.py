@@ -6,6 +6,7 @@ import time
 import openai
 import random
 from dpp import *
+from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from openai.embeddings_utils import get_embedding, cosine_similarity
 
@@ -15,13 +16,19 @@ class ModelTester():
         # raw_log_path,   # .log file and .log_structured.csv file
         log_path, 
         # look_up_map_path,
+        result_path,
+        map_path,
         dataset,
         emb_path,
-        cand_ratio = 0.2,
-        split_method = "random", # random or DPP
-        warmup=False,
+        cand_ratio,
+        split_method, # random or DPP
+        warmup,
     ):
 
+    map_path = map_path + "/" + dataset + "_lookupmap.json"
+    print('map_path: ', map_path)
+    log_path = log_path + "/" + dataset + "/" + dataset + "_2k.log_structured.csv"
+    self.result_path = result_path +  "/" + dataset + "_2k.result.csv"
     self.dataset = dataset
     self.emb_path = emb_path + "/" + dataset + ".json"
     # split for candidate set and test set
@@ -30,10 +37,11 @@ class ModelTester():
     # whether do warmup
     self.warmup = warmup
     # look up map
-    if (os.path.exists(dataset+"_lookupmap.json")): 
-      with open(dataset+"_lookupmap.json", "r") as file:
+    if (os.path.exists(map_path)): 
+      print("Load look up map of {} ...".format(self.dataset))
+      with open(map_path, "r") as file:
             self.lookUpMap = json.load(file)
-    else: self.lookUpMap = self.generateLuMap(dataset+"_lookupmap.json")
+    else: self.lookUpMap = self.generateLuMap(map_path)
 
   # extract groundtruth templates from log_structured.csv file
   def extractCsvContent(self, groundtruth_path):
@@ -80,6 +88,7 @@ class ModelTester():
       # cand_list = self.generateEmbeddings(self.log_cand)
 
       # get embeddings from embedding json file
+      print('Generating lookup map for {} ...'.format(self.dataset))
       with open(self.emb_path, "r") as file:
           emb_map = json.load(file)
 
@@ -87,7 +96,7 @@ class ModelTester():
       cand_embs = [emb_map[log] for log in self.log_cand]
 
       lookUpMap = {}
-      for test_idx in range(len(self.log_test)):
+      for test_idx in tqdm(range(len(self.log_test))):
         dis_dict = {}
         for cand_idx in range(len(self.log_cand)):
           dis_dict[cosine_similarity(test_embs[test_idx], cand_embs[cand_idx])] = cand_idx
@@ -194,9 +203,8 @@ class ModelTester():
       return correct_num/len(oracle_tem_dict)
 
   def writeResult(self, result, path):
-      with open(path, 'w') as file:
-        for line in result:
-          file.write(line + '\n')
+      output = pd.DataFrame(data={"log": self.log_test, "template": result})
+      output.to_csv(path, index=False)
 
   # extract result from model's response
   def extractResultTemplate(self, text):
@@ -213,7 +221,7 @@ class ModelTester():
       # list to store the model's parsing on each log message
       answer_list = []
       wordCount = 0
-      for line_idx in range(len(self.log_test)):
+      for line_idx in tqdm(range(len(self.log_test))):
         if line_idx >= limit: break
         line = self.log_test[line_idx]
         # get a prompt with five examples for each log message
@@ -236,8 +244,11 @@ class ModelTester():
           answer_list.append(self.extractResultTemplate(response["choices"][0]["message"]["content"]))
 
       PA = self.evaluatePA(answer_list)
-      print("The parsing accuracy in this test is {:.4}".format(PA))
-      self.writeResult(answer_list, "{}_test_result.txt".format(model_name))
+      print("{}:\t PA:\t {:.6}".format(self.dataset, PA))
+      f = open("benchmark.txt", 'wa')
+      f.write("{}:\t PA:\t {:.6}".format(self.dataset, PA) + '\n')
+      f.close()
+      self.writeResult(answer_list, self.result_path)
       return
 
   def textModelBatchTest(self, model, model_name, max_token, limit, N=5):
@@ -247,7 +258,7 @@ class ModelTester():
 (substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
 and put the template after <extraction> tag and between <START> and <END> tags."
 
-      for line_idx in range(len(self.log_test)):
+      for line_idx in tqdm(range(len(self.log_test))):
         if line_idx >= limit: break
         line = self.log_test[line_idx]
         # get a prompt with five examples for each log message
@@ -272,10 +283,13 @@ and put the template after <extraction> tag and between <START> and <END> tags."
       PA = self.evaluatePA(answer_list)
       # PTA = self.evaluatePTA(answer_list)
       # RTA = self.evaluateRTA(answer_list)
-      print("The parsing accuracy in this test is {:.4}".format(PA))
-      # print("The parsing template accuracy in this test is {:.4}".format(PTA))
-      # print("The oracle template accuracy in this test is {:.4}".format(RTA))
-      self.writeResult(answer_list, "{}_test_result.txt".format(model_name))
+      print("{}:\t PA:\t {:.6}".format(self.dataset, PA))
+      f = open("benchmark.txt", 'wa')
+      f.write("{}:\t PA:\t {:.6}".format(self.dataset, PA) + '\n')
+      f.close()
+      # print("The parsing template accuracy in this test is {:.6}".format(PTA))
+      # print("The oracle template accuracy in this test is {:.6}".format(RTA))
+      self.writeResult(answer_list, self.result_path)
       return
 
   def textDemo(self, model, model_name, max_token, N=5):

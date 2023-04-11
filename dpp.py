@@ -41,7 +41,7 @@ def getDppIndex(log_emb_list,
     result = dpp(similarities, max_length)
     result.sort()
     print('DPP algorithm running time: ' + '\t' + "{0:.4e}".format(time.time() - t))
-    print(f'DPP result indexex: {result}')
+    # print(f'DPP result indexex: {result}')
     return result
 
 
