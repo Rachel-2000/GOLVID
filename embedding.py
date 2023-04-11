@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 from openai.embeddings_utils import get_embedding
-openai.api_key = "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" # has been disabled. You need to use your own openai API key.
+openai.api_key = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" # has been disabled. You need to use your own openai API key.
 
 if os.path.exists("embeddings") == False:
     os.mkdir("embeddings")
