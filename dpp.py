@@ -25,14 +25,11 @@ def dpp(kernel_matrix, max_length, epsilon=1E-10):
     return selected_items
 
 def getDppIndex(log_emb_list, 
-                item_size=2000,    # log dataset size
-                split_ratio = 0.2):
+                item_size,    # log dataset size
+                split_ratio):
 
-    max_length = item_size * split_ratio
-    # print(f"max_length = {split_ratio * item_size}")
-    feature_vectors = np.array(log_emb_list)
-    print(f"Shape of feature vectors: {feature_vectors.shape}")
-    feature_dimension = len(feature_vectors) # 2048
+    max_length = int(item_size * split_ratio)
+    feature_vectors = np.array(log_emb_list) 
 
     # standarization no need for log embeddings
     feature_vectors /= np.linalg.norm(feature_vectors, axis=1, keepdims=True)

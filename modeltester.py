@@ -63,7 +63,7 @@ class ModelTester():
           for log in log_list:
             log_embs.append(emb_map[log])
           print(f"length of log embs is {len(log_embs)}")
-          candidate_idx = getDppIndex(log_embs, item_size=2000, cand_ratio)
+          candidate_idx = getDppIndex(log_embs, 2000, cand_ratio)
           log_test, log_cand, gt_test, gt_cand = DPPsplit(log_list, groundtruth_template, candidate_idx)
       return log_test, log_cand, gt_test, gt_cand
 
@@ -85,11 +85,6 @@ class ModelTester():
 
       test_embs = [emb_map[log] for log in self.log_test]
       cand_embs = [emb_map[log] for log in self.log_cand]
-      # print(len(emb_map))
-      # print(len(self.log_test))
-      # print(len(self.log_cand))
-      # print(len(test_embs))
-      # print(len(cand_embs))
 
       lookUpMap = {}
       for test_idx in range(len(self.log_test)):
@@ -123,7 +118,11 @@ class ModelTester():
       # backward iteration
       for i in range(len(idxes)-1,-1,-1):
         # update: modify the prompt format to <prompt>:xx \n <extraction>:xx \n\n <prompt>: xx ...
-        prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]] + \
+        if self.dataset == "Hadoop":
+          prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]] + \
+                '\n<extraction>: <START> ' + self.gt_cand[idxes[i]] + ' <END>\n\n'
+        else:
+          prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]] + \
                 '<extraction>: <START> ' + self.gt_cand[idxes[i]] + ' <END>\n\n'
       return prompt
 
@@ -144,12 +143,7 @@ class ModelTester():
       if length == 0: return 0
       correct = 0
       for i in range(length):
-        r = self.compareTemplate(result[i], self.gt_test[i])
-        if not r: 
-          print("Groundtruth: " + self.gt_test[i])
-          print("Unmatched result: " + result[i])
-        correct += r
-        # correct += self.compareTemplate(result[i], self.gt_test[i])
+        correct += self.compareTemplate(result[i], self.gt_test[i])
       return correct/length
 
   # correctly identified templates over total num of identified template
@@ -276,11 +270,11 @@ and put the template after <extraction> tag and between <START> and <END> tags."
           answer_list.append(self.extractResultTemplate(response["choices"][0]["text"]))
 
       PA = self.evaluatePA(answer_list)
-      PTA = self.evaluatePTA(answer_list)
-      RTA = self.evaluateRTA(answer_list)
+      # PTA = self.evaluatePTA(answer_list)
+      # RTA = self.evaluateRTA(answer_list)
       print("The parsing accuracy in this test is {:.4}".format(PA))
-      print("The parsing template accuracy in this test is {:.4}".format(PTA))
-      print("The oracle template accuracy in this test is {:.4}".format(RTA))
+      # print("The parsing template accuracy in this test is {:.4}".format(PTA))
+      # print("The oracle template accuracy in this test is {:.4}".format(RTA))
       self.writeResult(answer_list, "{}_test_result.txt".format(model_name))
       return
 
