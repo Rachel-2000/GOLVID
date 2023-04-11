@@ -1,6 +1,4 @@
-# GOLVID
-
-Prompt4UniParsing
+# Prompt4UniParsing
 
 ## Dataset
 
