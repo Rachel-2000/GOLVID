@@ -11,3 +11,10 @@ tester = ModelTester(
                   split_method = "DPP",   # random or DPP
                   warmup=False,
                   )
+
+tester.textModelBatchTest(model = "curie", 
+                          model_name = "gptC", 
+                          max_token = 80,       # token number in model response
+                          limit = 100,         # number of logs for testing, <= 2000*(1-cand_ratio)
+                          N=5,                  # number of examples in the prompt
+                          )
