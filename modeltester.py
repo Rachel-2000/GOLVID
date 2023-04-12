@@ -202,8 +202,8 @@ class ModelTester():
       
       return correct_num/len(oracle_tem_dict)
 
-  def writeResult(self, result, path):
-      output = pd.DataFrame(data={"log": self.log_test, "template": result})
+  def writeResult(self, result, path, limit):
+      output = pd.DataFrame(data={"log": self.log_test[:limit], "template": result})
       output.to_csv(path, index=False)
 
   # extract result from model's response
@@ -244,11 +244,11 @@ class ModelTester():
           answer_list.append(self.extractResultTemplate(response["choices"][0]["message"]["content"]))
 
       PA = self.evaluatePA(answer_list)
-      print("{}:\t PA:\t {:.6}".format(self.dataset, PA))
-      f = open("benchmark.txt", 'wa')
-      f.write("{}:\t PA:\t {:.6}".format(self.dataset, PA) + '\n')
+      print("{}:\t PA:\t {:.6f}".format(self.dataset, PA))
+      f = open("benchmark.txt", 'w')
+      f.write("{}:\t PA:\t {:.6f}".format(self.dataset, PA) + '\n')
       f.close()
-      self.writeResult(answer_list, self.result_path)
+      self.writeResult(answer_list, self.result_path, limit)
       return
 
   def textModelBatchTest(self, model, model_name, max_token, limit, N=5):
@@ -270,8 +270,8 @@ and put the template after <extraction> tag and between <START> and <END> tags."
                                               temperature=0,
                                               max_tokens=max_token)
         except: # if interrupt by request busy
-          print("Request busy, log {} is now waiting ...".format(line_idx))
-          time.sleep(5)
+          # print("Request busy, log {} is now waiting ...".format(line_idx))
+          time.sleep(0.1)
           line_idx -= 1
           continue
         else:
@@ -283,13 +283,13 @@ and put the template after <extraction> tag and between <START> and <END> tags."
       PA = self.evaluatePA(answer_list)
       # PTA = self.evaluatePTA(answer_list)
       # RTA = self.evaluateRTA(answer_list)
-      print("{}:\t PA:\t {:.6}".format(self.dataset, PA))
-      f = open("benchmark.txt", 'wa')
-      f.write("{}:\t PA:\t {:.6}".format(self.dataset, PA) + '\n')
+      print("{}:\t PA:\t {:.6f}".format(self.dataset, PA))
+      f = open("benchmark.txt", 'w')
+      f.write("{}:\t PA:\t {:.6f}".format(self.dataset, PA) + '\n')
       f.close()
-      # print("The parsing template accuracy in this test is {:.6}".format(PTA))
-      # print("The oracle template accuracy in this test is {:.6}".format(RTA))
-      self.writeResult(answer_list, self.result_path)
+      # print("The parsing template accuracy in this test is {:.6f}".format(PTA))
+      # print("The oracle template accuracy in this test is {:.6f}".format(RTA))
+      self.writeResult(answer_list, self.result_path, limit)
       return
 
   def textDemo(self, model, model_name, max_token, N=5):
