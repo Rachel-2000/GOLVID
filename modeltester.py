@@ -13,35 +13,39 @@ from openai.embeddings_utils import get_embedding, cosine_similarity
 
 class ModelTester():
   def __init__(self, 
-        # raw_log_path,   # .log file and .log_structured.csv file
         log_path, 
-        # look_up_map_path,
-        result_path,
-        map_path,
+        result_path, 
+        map_path, 
         dataset,
         emb_path,
         cand_ratio,
         split_method, # random or DPP
-        warmup,
+        warmup, # warmup or not
     ):
 
-    map_path = map_path + "/" + dataset + "_lookupmap.json"
-    print('map_path: ', map_path)
-    log_path = log_path + "/" + dataset + "/" + dataset + "_2k.log_structured.csv"
-    self.result_path = result_path +  "/" + dataset + "_2k.result.csv"
+    self.log_path = log_path + "/{}/{}_2k.log_structured.csv".format(dataset,dataset)
+    self.result_path = result_path
+    self.map_path = map_path + "/{}_{}_lookupmap.json".format(cand_ratio,dataset)
     self.dataset = dataset
-    self.emb_path = emb_path + "/" + dataset + ".json"
-    # split for candidate set and test set
-    self.log_test, self.log_cand, self.gt_test, self.gt_cand = self.splitCandidates(log_path, cand_ratio, split_method)
-    # self.cand_ratio = cand_ratio
-    # whether do warmup
+    self.emb_path = emb_path + "/{}.json".format(dataset)
+    self.cand_ratio = cand_ratio
+    self.split_method = split_method
     self.warmup = warmup
-    # look up map
+
+    # split candidate set
+    self.log_test, self.log_cand, self.gt_test, self.gt_cand = self.splitCandidates(self.log_path, self.cand_ratio, self.split_method)
+
+    # build lookup map
+    self.lookUpMap = self.buildLookupMap(self.map_path)
+  
+  # generate lookup map
+  def buildLookupMap(self, map_path):
+    # build lookup map
     if (os.path.exists(map_path)): 
       print("Load look up map of {} ...".format(self.dataset))
       with open(map_path, "r") as file:
-            self.lookUpMap = json.load(file)
-    else: self.lookUpMap = self.generateLuMap(map_path)
+            return json.load(file)
+    else: return self.generateLuMap(map_path)
 
   # extract groundtruth templates from log_structured.csv file
   def extractCsvContent(self, groundtruth_path):
@@ -224,28 +228,49 @@ class ModelTester():
 (substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
 and put the template after <extraction> tag and between <START> and <END> tags."
 
-      # while line_idx < len(self.log_test):
-      for line_idx in tqdm(range(len(self.log_test))):
-        if line_idx >= limit: break
-        line = self.log_test[line_idx]
-        # get a prompt with five examples for each log message
-        prompt = self.generatePrompt(line, nearest_num=N)
-        while True:
-          try:
-            response = openai.Completion.create(
-                                                model=model, 
-                                                prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line, 
-                                                temperature=0,
-                                                max_tokens=max_token)
-          except: # if interrupt by request busy
-            # print("Request busy, log {} is now waiting ...".format(line_idx))
-            time.sleep(0.1)
-          else:
-            # if no exception, the model response a dict
-            # format for CodeX, GPT-D
-            # print(response)
-            answer_list.append(self.extractResultTemplate(response["choices"][0]["text"]))
-            break
+      self.result_path = self.result_path +  "/{}_{}_result.csv".format(limit,self.dataset)
+      # if the result file already exists, load it
+      if os.path.exists(self.result_path):
+        print("Result file already exists, loading ...")
+        answer_list = pd.read_csv(self.result_path)['template'].to_list()
+      else:
+        # if the result file does not exist, use api to generate result
+        print("Result file does not exist, generating result ...")
+        for line_idx in tqdm(range(len(self.log_test))):
+          if line_idx >= limit: break
+          line = self.log_test[line_idx]
+          # get a prompt with five examples for each log message
+          prompt = self.generatePrompt(line, nearest_num=N)
+          re_idx = 0
+          while True:
+            try:
+              response = openai.Completion.create(
+                                                  model=model, 
+                                                  prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line, 
+                                                  temperature=0,
+                                                  max_tokens=max_token)
+            except: # if interrupt by request busy
+              # print("Request busy, log {} is now waiting ...".format(line_idx))
+              time.sleep(0.1)
+            else:
+              # if no exception, the model response a dict
+              # format for CodeX, GPT-D
+              # print(response)
+              # to avoid empty response
+              result = self.extractResultTemplate(response["choices"][0]["text"])
+              if result != "":
+                answer_list.append(result)
+                break
+              else:
+                re_idx += 1
+                if re_idx >= 5:
+                  max_token *= 2
+                  print("max_token doubled to {}".format(max_token))
+                  re_idx = 0
+                  if max_token > 1000:
+                    print("Too long log: max_token exceeds 1000, stop increasing")
+                    break
+                
 
       PA = self.evaluatePA(answer_list)
       PTA = self.evaluatePTA(answer_list)
