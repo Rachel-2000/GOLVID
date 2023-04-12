@@ -159,7 +159,7 @@ class ModelTester():
   def evaluatePTA(self, result):
       # generate a "template: log indexes list" mapping for groundtruth
       oracle_tem_dict = {}
-      for idx in range(len(self.gt_test)):
+      for idx in range(len(result)):
           if self.gt_test[idx] not in oracle_tem_dict:
             oracle_tem_dict[self.gt_test[idx]] = [idx]
           else: oracle_tem_dict[self.gt_test[idx]].append(idx)
@@ -182,7 +182,7 @@ class ModelTester():
   # correctly identified templates over total num of oracle template
   def evaluateRTA(self, result):
       oracle_tem_dict = {}
-      for idx in range(len(self.gt_test)):
+      for idx in range(len(result)):
           if self.gt_test[idx] not in oracle_tem_dict:
             oracle_tem_dict[self.gt_test[idx]] = [idx]
           else: oracle_tem_dict[self.gt_test[idx]].append(idx)
@@ -258,7 +258,8 @@ class ModelTester():
 (substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
 and put the template after <extraction> tag and between <START> and <END> tags."
 
-      for line_idx in tqdm(range(len(self.log_test))):
+      line_idx = 0
+      while line_idx < len(self.log_test):
         if line_idx >= limit: break
         line = self.log_test[line_idx]
         # get a prompt with five examples for each log message
@@ -270,26 +271,23 @@ and put the template after <extraction> tag and between <START> and <END> tags."
                                               temperature=0,
                                               max_tokens=max_token)
         except: # if interrupt by request busy
-          # print("Request busy, log {} is now waiting ...".format(line_idx))
+          print("Request busy, log {} is now waiting ...".format(line_idx))
           time.sleep(0.1)
-          line_idx -= 1
           continue
         else:
           # if no exception, the model response a dict
           # format for CodeX, GPT-D
           # print(response)
           answer_list.append(self.extractResultTemplate(response["choices"][0]["text"]))
+          line_idx += 1
 
       PA = self.evaluatePA(answer_list)
-      # PTA = self.evaluatePTA(answer_list)
-      # RTA = self.evaluateRTA(answer_list)
-      print("{}:\t PA:\t {:.6f}".format(self.dataset, PA))
-      f = open("benchmark.txt", 'w')
-      f.write("{}:\t PA:\t {:.6f}".format(self.dataset, PA) + '\n')
-      f.close()
-      # print("The parsing template accuracy in this test is {:.6f}".format(PTA))
-      # print("The oracle template accuracy in this test is {:.6f}".format(RTA))
-      self.writeResult(answer_list, self.result_path, limit)
+      PTA = self.evaluatePTA(answer_list)
+      RTA = self.evaluateRTA(answer_list)
+      print("The parsing accuracy in this test is {:.4}".format(PA))
+      print("The parsing template accuracy in this test is {:.4}".format(PTA))
+      print("The oracle template accuracy in this test is {:.4}".format(RTA))
+      self.writeResult(answer_list, "{}_test_result.txt".format(model_name))
       return
 
   def textDemo(self, model, model_name, max_token, N=5):
