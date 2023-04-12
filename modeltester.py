@@ -216,40 +216,6 @@ class ModelTester():
       if (len(result)): return result[0]
       else: return ""
 
-  # test log message parsing in chat completion model
-  def chatModelBatchTest(self, model, model_name, limit):
-      # list to store the model's parsing on each log message
-      answer_list = []
-      wordCount = 0
-      for line_idx in tqdm(range(len(self.log_test))):
-        if line_idx >= limit: break
-        line = self.log_test[line_idx]
-        # get a prompt with five examples for each log message
-        prompt = self.generatePrompt(line, nearest_num=5)
-        try:
-          response = openai.ChatCompletion.create(
-          model = model,
-          messages = [{"role": "system", "content": "select <Event#> and extract log template (substitute constant tokens in the message as <*>) after <Event#>"}] 
-          + [{"role": "user", "content": prompt + "<prompt>:" + line + '\n'}])
-        except: # if interrupt by request busy
-          # wait for 30 seconds if request busy
-          print("Request busy, log {} is now waiting ...".format(line_idx))
-          time.sleep(5)
-          line_idx -= 1
-          continue
-        else:
-          # if no exception, the model response a dict
-          # the format here is for ChatGPT, for CodeX it should be 'response["choices"][0]["text"]'
-          # print(response)
-          answer_list.append(self.extractResultTemplate(response["choices"][0]["message"]["content"]))
-
-      PA = self.evaluatePA(answer_list)
-      print("{}:\t PA:\t {:.6f}".format(self.dataset, PA))
-      f = open("benchmark.txt", 'w')
-      f.write("{}:\t PA:\t {:.6f}".format(self.dataset, PA) + '\n')
-      f.close()
-      self.writeResult(answer_list, self.result_path, limit)
-      return
 
   def textModelBatchTest(self, model, model_name, max_token, limit, N=5):
       # list to store the model's parsing on each log message
@@ -258,44 +224,37 @@ class ModelTester():
 (substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
 and put the template after <extraction> tag and between <START> and <END> tags."
 
-      line_idx = 0
-      while line_idx < len(self.log_test):
+      # while line_idx < len(self.log_test):
+      for line_idx in tqdm(range(len(self.log_test))):
         if line_idx >= limit: break
         line = self.log_test[line_idx]
         # get a prompt with five examples for each log message
         prompt = self.generatePrompt(line, nearest_num=N)
-        try:
-          response = openai.Completion.create(
-                                              model=model, 
-                                              prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line, 
-                                              temperature=0,
-                                              max_tokens=max_token)
-        except: # if interrupt by request busy
-          print("Request busy, log {} is now waiting ...".format(line_idx))
-          time.sleep(0.1)
-          continue
-        else:
-          # if no exception, the model response a dict
-          # format for CodeX, GPT-D
-          # print(response)
-          answer_list.append(self.extractResultTemplate(response["choices"][0]["text"]))
-          line_idx += 1
+        while True:
+          try:
+            response = openai.Completion.create(
+                                                model=model, 
+                                                prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line, 
+                                                temperature=0,
+                                                max_tokens=max_token)
+          except: # if interrupt by request busy
+            # print("Request busy, log {} is now waiting ...".format(line_idx))
+            time.sleep(0.1)
+          else:
+            # if no exception, the model response a dict
+            # format for CodeX, GPT-D
+            # print(response)
+            answer_list.append(self.extractResultTemplate(response["choices"][0]["text"]))
+            break
 
       PA = self.evaluatePA(answer_list)
       PTA = self.evaluatePTA(answer_list)
       RTA = self.evaluateRTA(answer_list)
-      print("{}:\t PA:\t {:.6f}".format(self.dataset, PA))
-      print("{}:\t PTA:\t {:.6f}".format(self.dataset, PTA))
-      print("{}:\t RTA:\t {:.6f}".format(self.dataset, RTA))
-      f = open("benchmark.txt", 'w')
-      f.write("{}:\t PA:\t {:.6f}".format(self.dataset, PA) + '\n')
-      f.write("{}:\t PTA:\t {:.6f}".format(self.dataset, PTA) + '\n')
-      f.write("{}:\t RTA:\t {:.6f}".format(self.dataset, RTA) + '\n')
+      print("{}:\t PA:\t {:.6f}\t PTA:\t {:.6f}\t RTA:\t {:.6f}".format(self.dataset, PA, PTA, RTA))
+      f = open("benchmark.txt", 'a')
+      f.write("{}:\t PA:\t {:.6f}\t PTA:\t {:.6f}\t RTA:\t {:.6f}".format(self.dataset, PA, PTA, RTA) + '\n')
       f.close()
-      # print("The parsing accuracy in this test is {:.4}".format(PA))
-      # print("The parsing template accuracy in this test is {:.4}".format(PTA))
-      # print("The oracle template accuracy in this test is {:.4}".format(RTA))
-      self.writeResult(answer_list, "{}_test_result.txt".format(model_name))
+      self.writeResult(answer_list, self.result_path, limit)
       return
 
   def textDemo(self, model, model_name, max_token, N=5):
