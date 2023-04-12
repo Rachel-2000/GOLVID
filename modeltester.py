@@ -132,7 +132,7 @@ class ModelTester():
       for i in range(len(idxes)-1,-1,-1):
         # update: modify the prompt format to <prompt>:xx \n <extraction>:xx \n\n <prompt>: xx ...
         prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]] + \
-              '<extraction>: <START> ' + self.gt_cand[idxes[i]] + ' <END>\n\n'  
+              '\n<extraction>: <START> ' + self.gt_cand[idxes[i]] + ' <END>\n\n'  
       similarist_gt = self.gt_cand[idxes[0]]
       return prompt, similarist_gt
 
@@ -243,7 +243,7 @@ and put the template after <extraction> tag and between <START> and <END> tags."
             try:
               response = openai.Completion.create(
                                                   model=model, 
-                                                  prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line, 
+                                                  prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line + "\n<extraction>: ", 
                                                   temperature=0,
                                                   max_tokens=token_len)
             except: # if interrupt by request busy
