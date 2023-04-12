@@ -243,7 +243,7 @@ and put the template after <extraction> tag and between <START> and <END> tags."
             try:
               response = openai.Completion.create(
                                                   model=model, 
-                                                  prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line + "\n<extraction>: ", 
+                                                  prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line.strip() + "\n<extraction>: ", 
                                                   temperature=0,
                                                   max_tokens=token_len)
             except: # if interrupt by request busy
@@ -281,21 +281,4 @@ and put the template after <extraction> tag and between <START> and <END> tags."
       f.write("{}:\t PA:\t {:.6f}\t PTA:\t {:.6f}\t RTA:\t {:.6f}".format(self.dataset, PA, PTA, RTA) + '\n')
       f.close()
       self.writeResult(answer_list, self.result_path, limit)
-      return
-
-  def textDemo(self, model, model_name, max_token, N=5):
-      # instruction = "extract the log template after <extraction> and between <START> and <END> (substitute constant tokens in the message as <*>) for one log message after <prompt>"
-      instruction = "For each log after <prompt> tag, extract one log template\
-(substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
-and put the template after <extraction> tag and between <START> and <END> tags."
-#Digits are usually variable tokens.
-      line = random.sample(self.log_test, 1)[0] # random.sample return a list
-      prompt = self.generatePrompt(line, nearest_num=N)
-      response = openai.Completion.create(
-                                          model=model, 
-                                          prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line + "\n<extraction>: ", 
-                                          temperature=0,
-                                          max_tokens=max_token)
-
-      print("Prompt = " + instruction + "\n\n\n" + prompt + "<prompt>:" + line + "\n<extraction>: ")
-      print("Result = " + response["choices"][0]["text"])
+      return PA, PTA, RTA
