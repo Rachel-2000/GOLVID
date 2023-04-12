@@ -234,7 +234,7 @@ and put the template after <extraction> tag and between <START> and <END> tags."
       else:
         # if the result file does not exist, use api to generate result
         print("Result file does not exist, generating result ...")
-        for line_idx in tqdm(range(len(self.log_test))):
+        for line_idx in tqdm(range(len(self.log_test[:limit]))):
           if line_idx >= limit: break
           line = self.log_test[line_idx]
           # get a prompt with five examples for each log message
