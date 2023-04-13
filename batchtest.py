@@ -39,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument('--warmup', type=bool, default=False, help='warmup or not')
     parser.add_argument('--model', type=str, default='curie', help='model name')
     parser.add_argument('--model_name', type=str, default='gptC', help='model name')
-    parser.add_argument('--max_token', type=int, default=256, help='token number in model response')
+    parser.add_argument('--max_token', type=int, default=180, help='token number in model response, <= 180')
     parser.add_argument('--limit', type=int, default=1800, help='number of logs for testing, <= 2000*(1-cand_ratio)')
     parser.add_argument('--N', type=int, default=5, help='number of examples in the prompt')
     args = parser.parse_args()

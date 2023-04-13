@@ -131,8 +131,8 @@ class ModelTester():
       # backward iteration
       for i in range(len(idxes)-1,-1,-1):
         # update: modify the prompt format to <prompt>:xx \n <extraction>:xx \n\n <prompt>: xx ...
-        prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]] + \
-              '\n<extraction>: <START> ' + self.gt_cand[idxes[i]] + ' <END>\n\n'  
+        prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]].strip() + \
+              '\n<extraction>: <START> ' + self.gt_cand[idxes[i]].strip() + ' <END>\n\n'  
       similarist_gt = self.gt_cand[idxes[0]]
       return prompt, similarist_gt
 
@@ -219,7 +219,6 @@ class ModelTester():
 
 
   def textModelBatchTest(self, model, model_name, max_token, limit, N=5):
-      token_len = 128 # init token length
       # list to store the model's parsing on each log message
       answer_list = []
       instruction = "For each log after <prompt> tag, extract one log template\
@@ -235,7 +234,9 @@ and put the template after <extraction> tag and between <START> and <END> tags."
         # if the result file does not exist, use api to generate result
         print("Result file does not exist, generating result ...")
         for line_idx in tqdm(range(len(self.log_test[:limit]))):
+          token_len = 100
           re_id = 0
+          temperature = 0
           if line_idx >= limit: break
           line = self.log_test[line_idx]
           # get a prompt with five examples for each log message
@@ -245,7 +246,7 @@ and put the template after <extraction> tag and between <START> and <END> tags."
               response = openai.Completion.create(
                                                   model=model, 
                                                   prompt=instruction + "\n\n\n" + prompt + "<prompt>:" + line.strip() + "\n<extraction>: ", 
-                                                  temperature=0,
+                                                  temperature=temperature,
                                                   max_tokens=token_len)
             except: # if interrupt by request busy
               print("Request busy, log {} is now waiting ...".format(line_idx))
@@ -256,7 +257,6 @@ and put the template after <extraction> tag and between <START> and <END> tags."
                 result = similarist_gt
                 answer_list.append(result)
                 print("Too long waiting time, raw log: {}".format(line) + '\n')
-                re_id = 0
                 break
             else:
               # if no exception, the model response a dict
@@ -275,11 +275,11 @@ and put the template after <extraction> tag and between <START> and <END> tags."
                   print("Too long log error: token_len exceeds {}, stop increasing, using the similarist log message's tempate as prediction".format(token_len) + '\n')
                   print("Raw ouput: {}".format(response["choices"][0]["text"]) + '\n')
                   print("Similarist log template: {}".format(result) + '\n')
-                  token_len = 128
                   break
                 else:
-                  token_len *= 2
-                  print("token_len doubled to {}".format(token_len))
+                  token_len += 20
+                  temperature += 0.25
+                  print("token_len added to {}".format(token_len))
                 
 
       PA = self.evaluatePA(answer_list)
