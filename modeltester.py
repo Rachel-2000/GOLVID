@@ -235,6 +235,7 @@ and put the template after <extraction> tag and between <START> and <END> tags."
         # if the result file does not exist, use api to generate result
         print("Result file does not exist, generating result ...")
         for line_idx in tqdm(range(len(self.log_test[:limit]))):
+          re_id = 0
           if line_idx >= limit: break
           line = self.log_test[line_idx]
           # get a prompt with five examples for each log message
@@ -247,8 +248,16 @@ and put the template after <extraction> tag and between <START> and <END> tags."
                                                   temperature=0,
                                                   max_tokens=token_len)
             except: # if interrupt by request busy
-              # print("Request busy, log {} is now waiting ...".format(line_idx))
-              time.sleep(0.1)
+              print("Request busy, log {} is now waiting ...".format(line_idx))
+              re_id += 1
+              if re_id < 5:
+                time.sleep(0.1)
+              else:
+                result = similarist_gt
+                answer_list.append(result)
+                print("Too long waiting time, raw log: {}".format(line) + '\n')
+                re_id = 0
+                break
             else:
               # if no exception, the model response a dict
               # format for CodeX, GPT-D
