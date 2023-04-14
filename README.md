@@ -68,3 +68,25 @@ tester.textModelBatchTest(model = "curie",
 ```
 
 The sample codes are in batchtest.py.
+
+## Result
+
+```
+HDFS:	 PA:	 0.998889	 PTA:	 0.818182	 RTA:	 0.900000
+Spark:	 PA:	 0.999444	 PTA:	 0.882353	 RTA:	 0.882353
+BGL:	 PA:	 0.981667	 PTA:	 0.857143	 RTA:	 0.867470
+Windows:	 PA:	 1.000000	 PTA:	 1.000000	 RTA:	 1.000000
+Linux:	 PA:	 0.997222	 PTA:	 0.950000	 RTA:	 0.904762
+Andriod:	 PA:	 0.938333	 PTA:	 0.846154	 RTA:	 0.838095
+Mac:	 PA:	 0.849444	 PTA:	 0.587814	 RTA:	 0.616541
+HealthApp:	 PA:	 0.996111	 PTA:	 0.950000	 RTA:	 0.950000
+OpenSSH:	 PA:	 0.939444	 PTA:	 0.947368	 RTA:	 0.900000
+Thunderbird:	 PA:	 0.967778	 PTA:	 0.656716	 RTA:	 0.862745
+Proxifier:	 PA:	 0.996667	 PTA:	 0.384615	 RTA:	 0.625000
+Apache:	 PA:	 0.999444	 PTA:	 0.600000	 RTA:	 0.600000
+HPC:	 PA:	 0.979444	 PTA:	 0.735294	 RTA:	 0.892857
+Zookeeper:	 PA:	 1.000000	 PTA:	 1.000000	 RTA:	 1.000000
+Hadoop:	 PA:	 0.993333	 PTA:	 0.914894	 RTA:	 0.955556
+OpenStack:	 PA:	 0.997778	 PTA:	 0.950000	 RTA:	 0.950000
+```
+
