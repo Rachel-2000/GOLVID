@@ -11,9 +11,9 @@ if os.path.exists("embeddings") == False:
 input_dir = "logs/"
 output_dir = "embeddings/"
 log_list = ['HDFS', 'Spark', 'BGL', 'Windows', 'Linux', 'Andriod', 'Mac', 'Hadoop', 'HealthApp', 'OpenSSH', 'Thunderbird', 'Proxifier', 'Apache', 'HPC', 'Zookeeper', 'OpenStack']
-embedding = dict()
 
 for logs in log_list:
+    embedding = dict()
     print("Embedding " + logs + "...")
     i = pd.read_csv(input_dir + '/' + logs + '/' + logs + "_2k.log_structured.csv")
     contents = i['Content']
