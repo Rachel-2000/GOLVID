@@ -3,6 +3,7 @@ import time
 import re
 import os
 import pandas as pd
+import openai
 from tqdm import tqdm
 
 class TransferTesterSingle():

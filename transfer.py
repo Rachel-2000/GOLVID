@@ -4,6 +4,7 @@ import re
 import os
 import json
 from dpp import *
+import openai
 import pandas as pd
 from tqdm import tqdm
 
