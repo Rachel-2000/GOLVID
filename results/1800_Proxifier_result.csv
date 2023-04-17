@@ -380,11 +380,11 @@ proxy.cse.cuhk.edu.hk:5070 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<
 "proxy.cse.cuhk.edu.hk:5070 close, 1731 bytes (1.69 KB) sent, 864 bytes received, lifetime 02:53","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 182.254.114.110:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
 tcpconn.tencent.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
-"tcpconn3.tencent.com:80 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <1 sec"
+"tcpconn3.tencent.com:80 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 183.60.49.182:443 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
-"tcpconn6.tencent.com:443 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*>:<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
+"tcpconn6.tencent.com:443 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 tcpconn3.tencent.com:443 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
-"tcpconn6.tencent.com:80 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*>:<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
+"tcpconn6.tencent.com:80 close, 0 bytes sent, 0 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 tcpconn6.tencent.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
 tcpconn6.tencent.com:443 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
 "tcpconn3.tencent.com:443 close, 149 bytes sent, 121 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
@@ -1020,7 +1020,7 @@ a.img4399.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> ope
 w.cnzz.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
 www.4399.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
 "cpro.baidustatic.com:443 close, 334 bytes sent, 3713 bytes (3.62 KB) received, lifetime 00:48","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
-hm.baidu.com:80 error : A connection request was canceled before the completion.,<*> error : A connection request was canceled before the completion.
+hm.baidu.com:80 error : A connection request was canceled before the completion.,<*>:<*> error : A connection request was canceled before the completion.
 "www.google.com:443 close, 9034 bytes (8.82 KB) sent, 3696 bytes (3.60 KB) received, lifetime 07:26","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 "www.youtube.com:443 close, 30789 bytes (30.0 KB) sent, 164940 bytes (161 KB) received, lifetime 07:44","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 client-lb.dropbox.com:443 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS
@@ -1367,8 +1367,8 @@ s1.bdstatic.com:80 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070
 ss.bdimg.com:80 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
 ss.bdimg.com:80 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
 ss.bdimg.com:80 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
-clients4.google.com:443 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not resolve <*> error <*>
-bolt.dropbox.com:443 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not resolve proxy <*>:<*> - Could not resolve <*> error <*>
+clients4.google.com:443 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
+bolt.dropbox.com:443 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
 www.qq.com:80 error : Could not connect to proxy proxy.cse.cuhk.edu.hk:5070 - Could not resolve proxy.cse.cuhk.edu.hk error 11001,<*>:<*> error : Could not connect to proxy <*>:<*> - Could not resolve <*> error <*>
 "short.weixin.qq.com:80 close, 357 bytes sent, 468 bytes received, lifetime <1 sec","<*> close, <*> bytes<*>sent, <*> bytes<*>received, lifetime <*>"
 dict.youdao.com:80 open through proxy proxy.cse.cuhk.edu.hk:5070 HTTPS,<*>:<*> open through proxy <*>:<*> HTTPS

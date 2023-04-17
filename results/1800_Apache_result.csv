@@ -1049,7 +1049,7 @@ mod_jk child workerEnv in error state 9,mod_jk child workerEnv in error state <*
 workerEnv.init() ok /etc/httpd/conf/workers2.properties,workerEnv.init() ok <*>
 mod_jk child workerEnv in error state 6,mod_jk child workerEnv in error state <*>
 workerEnv.init() ok /etc/httpd/conf/workers2.properties,workerEnv.init() ok <*>
-mod_jk child workerEnv in error state 10,workerEnv.init() ok <*>
+mod_jk child workerEnv in error state 10,mod_jk child workerEnv in error state <*>
 mod_jk child workerEnv in error state 9,mod_jk child workerEnv in error state <*>
 jk2_init() Found child 4596 in scoreboard slot 8,jk2_init() Found child <*> in scoreboard slot <*>
 jk2_init() Found child 4595 in scoreboard slot 7,jk2_init() Found child <*> in scoreboard slot <*>
