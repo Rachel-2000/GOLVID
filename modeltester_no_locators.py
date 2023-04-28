@@ -4,6 +4,7 @@ import pandas as pd
 import re
 import time
 import openai
+import argparse
 import tiktoken as tt
 from dpp import *
 from tqdm import tqdm
@@ -12,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from openai.embeddings_utils import get_embedding, cosine_similarity
 
 
-class ModelTester():
+class ModelTesterNoLocators():
   def __init__(self, 
         log_path, 
         result_path, 
@@ -22,7 +23,6 @@ class ModelTester():
         cand_ratio,
         split_method, # random or DPP
         order_method, # random or KNN
-        permutation,
         warmup, # warmup or not
         subname, # subname of the files
     ):
@@ -35,7 +35,6 @@ class ModelTester():
     self.cand_ratio = cand_ratio
     self.split_method = split_method
     self.order_method = order_method
-    self.permutation = permutation
     self.warmup = warmup
     self.subname = subname
 
@@ -130,15 +129,7 @@ class ModelTester():
         return sample(cand_list, N)
       # return the idexes of most similar N log candidates
       elif self.order_method == 'KNN':
-        result = cand_list[:N]
-        if self.permutation == 'ascend':
-          return result
-        elif self.permutation == 'descend':
-          result.reverse()
-          return result
-        elif self.permutation == 'random':
-          result = sample(result, N)
-          return result
+        return cand_list[:N]
 
   # generate a prompt in str for a specific log message
   def generatePrompt(self, log, nearest_num=5):
@@ -148,7 +139,7 @@ class ModelTester():
       for i in range(len(idxes)-1,-1,-1):
         # update: modify the prompt format to <prompt>:xx \n <extraction>:xx \n\n <prompt>: xx ...
         prompt = prompt + "<prompt>:" + self.log_cand[idxes[i]].strip() + \
-              '\n<extraction>: <START> ' + self.gt_cand[idxes[i]].strip() + ' <END>\n\n'  
+              '\n<extraction>: ' + self.gt_cand[idxes[i]].strip() + ' \n\n'  
       similarist_gt = self.gt_cand[idxes[0]]
       return prompt, similarist_gt
 
@@ -225,13 +216,8 @@ class ModelTester():
 
   # extract result from model's response
   def extractResultTemplate(self, text):
-      # this pattern is for ChatGPT
-      # pattern = re.compile('<START> <Event\d> (.+) <END>')
-      pattern = re.compile('<START> (.+) <END>')
-      # findall return a list
-      result = pattern.findall(text)
-      if (len(result)): return result[0]
-      else: return ""
+      result = text.split('\n')[0] # only the first line.
+      return result
 
 
   def textModelBatchTest(self, model, model_name, limit, N=5):
@@ -240,7 +226,7 @@ class ModelTester():
       answer_list = []
       instruction = "For each log after <prompt> tag, extract one log template\
 (substitute variable tokens in the log as <*> and remain constant tokens to construct the template)\
-and put the template after <extraction> tag and between <START> and <END> tags."
+and put the template after <extraction> tag."
 
       self.result_path = self.result_path + "/{}_{}_result{}.csv".format(limit,self.dataset,self.subname)
       # if the result file already exists, load it
@@ -309,3 +295,45 @@ and put the template after <extraction> tag and between <START> and <END> tags."
       f.close()
       self.writeResult(answer_list, self.result_path, limit)
       return PA, PTA, RTA
+  
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-key', type=str, help='openai key')
+    parser.add_argument('--log_path', type=str, default='logs', help='log path')
+    parser.add_argument('--result_path', type=str, default='results', help='result path')
+    parser.add_argument('--map_path', type=str, default='maps', help='map path')
+    parser.add_argument('--dataset', type=str, default='HDFS', help='dataset name')
+    parser.add_argument('--emb_path', type=str, default='embeddings', help='embedding path')
+    parser.add_argument('--cand_ratio', type=float, default=0.1, help='ratio of candidate set')
+    parser.add_argument('--split_method', type=str, default='DPP', help='random or DPP')
+    parser.add_argument('--order_method', type=str, default='KNN', help='random or KNN')
+    parser.add_argument('--warmup', type=bool, default=False, help='warmup or not')
+    parser.add_argument('--model', type=str, default='curie', help='model name')
+    parser.add_argument('--model_name', type=str, default='gptC', help='model name')
+    parser.add_argument('--limit', type=int, default=1800, help='number of logs for testing, <= 2000*(1-cand_ratio)')
+    parser.add_argument('--N', type=int, default=5, help='number of examples in the prompt')
+    parser.add_argument('--subname', type=str, default='', help='subname of the files')
+    args = parser.parse_args()
+    
+    openai.api_key = args.key
+    print("Parsing " + args.dataset + " ...")
+
+    tester = ModelTesterNoLocators(
+                log_path = args.log_path,        # .log_structured_csv
+                result_path=args.result_path,    # .result_csv
+                map_path=args.map_path,          # .map_json
+                dataset = args.dataset,       # HDFS, Spark, BGL, Windows, Linux, Andriod, Mac, Hadoop, HealthApp, OpenSSH, Thunderbird, Proxifier, Apache, HPC, Zookeeper, OpenStack
+                emb_path = args.emb_path,           # embedding
+                cand_ratio = args.cand_ratio,       # ratio of candidate set
+                split_method = args.split_method,   # random or DPP
+                order_method = args.order_method,   # random or KNN
+                warmup = args.warmup,               # warmup or not
+                subname = args.subname,             # subname of the files
+                )
+
+    tester.textModelBatchTest(model = args.model, 
+                        model_name = args.model_name, 
+                        limit = args.limit,         # number of logs for testing, <= 2000*(1-cand_ratio)
+                        N = args.N,                  # number of examples in the prompt
+                        )
