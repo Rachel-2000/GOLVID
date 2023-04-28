@@ -89,3 +89,4 @@ Hadoop:	 PA:	 0.993333	 PTA:	 0.914894	 RTA:	 0.955556
 OpenStack:	 PA:	 0.997778	 PTA:	 0.950000	 RTA:	 0.950000
 ```
 
+You can also run `python draw.py` to generate all plots in the paper.
