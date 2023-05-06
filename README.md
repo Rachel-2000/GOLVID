@@ -4,12 +4,13 @@
 
 - Raw logs: https://github.com/logpai/loghub
 
-
 ## How to run
 
 ### All-in-one
 
 Just run `./batch.sh`. Remember to use your own openai key
+
+#### RQ1:
 
 ```shell
 #!/bin/bash
@@ -34,39 +35,31 @@ python batchtest.py -key $openai_key --dataset Zookeeper
 python batchtest.py -key $openai_key --dataset OpenStack
 ```
 
-### Step by step
+#### RQ2:
 
-In the current version, you need to firstly initialize a ModelTester instance:
+```shell
+python batchtest.py -key $openai_key --dataset Mac --split_method random --subname _randomSplit
+python batchtest.py -key $openai_key --dataset Mac --order_method random --subname _randomOrder
+python modeltester_no_locators.py -key $openai_key --dataset Mac --subname _noLocators
 
-```python
-tester = ModelTester(
-                  log_path = "/your_path_to_logs/Hadoop_2k.log_structured.csv",
-                  dataset = "Hadoop",
-                  emb_path = "embeddings",	# the path to embedding json files   
-                  cand_ratio = 0.2,       	# ratio of candidate set
-                  split_method = "DPP",   	# random or DPP
-                  warmup=False,
-                  )
+python batchtest.py -key $openai_key --dataset Mac --cand_ratio 0.15 --subname _candRatio015
+python batchtest.py -key $openai_key --dataset Mac --cand_ratio 0.125 --subname _candRatio0125
+python batchtest.py -key $openai_key --dataset Mac --cand_ratio 0.075 --subname _candRatio0075
+python batchtest.py -key $openai_key --dataset Mac --cand_ratio 0.05 --subname _candRatio005
+python batchtest.py -key $openai_key --dataset Mac --N 1 --subname _N1
+python batchtest.py -key $openai_key --dataset Mac --N 3 --subname _N3
+python batchtest.py -key $openai_key --dataset Mac --N 7 --subname _N7
+python batchtest.py -key $openai_key --dataset Mac --N 9 --subname _N9
+
+python batchtest.py -key $openai_key --dataset Mac --permutation descend --subname _descend
+python batchtest.py -key $openai_key --dataset Mac --permutation random --subname _random
+
+python batchtest.py -key $openai_key --dataset Mac --model ada --subname _ada
+python batchtest.py -key $openai_key --dataset Mac --model babbage --subname _babbage
+python batchtest.py -key $openai_key --dataset Mac --model davinci --subname _davinci
 ```
 
-Then, you can run a demo to parse a random selected log from the test set by:
-
-```python
-tester.textDemo(model = "curie", model_name = "gptC", max_token = 60, N=5)
-```
-
-You can also run batch testing:
-
-```python
-tester.textModelBatchTest(model = "curie", 
-                          model_name = "gptC", 
-                          max_token = 80,       # token number in model response
-                          limit = 100,          # number of logs for testing, <= 2000*(1-cand_ratio)
-                          N=5,                  # number of examples in the prompt
-                          )
-```
-
-The sample codes are in batchtest.py.
+You can also run `python draw.py` to generate all plots in the paper.
 
 ## Result
 
@@ -89,8 +82,30 @@ Hadoop:	 PA:	 0.993333	 PTA:	 0.914894	 RTA:	 0.955556
 OpenStack:	 PA:	 0.997778	 PTA:	 0.950000	 RTA:	 0.950000
 ```
 
-You can also run `python draw.py` to generate all plots in the paper.
+Additionally, we compare the grouping accuracy as a reference. The results are shown below:
 
-Additionally, we compare the grouping accuracy as follows:
+```
+HDFS:    GA:     0.890000
+Spark:   GA:     0.820000
+BGL:     GA:     0.963889
+Windows:         GA:     1.000000
+Linux:   GA:     0.994444
+Andriod:         GA:     0.948333
+Mac:     GA:     0.813889
+Hadoop:  GA:     0.991667
+HealthApp:       GA:     1.000000
+OpenSSH:         GA:     0.728889
+Thunderbird:     GA:     0.893889
+Proxifier:       GA:     1.000000
+Apache:  GA:     1.000000
+HPC:     GA:     0.958333
+Zookeeper:       GA:     1.000000
+OpenStack:       GA:     0.981111
+Average grouping accuracy: 0.9365277777777778
+```
+
+
 
 <img src="https://github.com/Rachel-2000/GOLVID/blob/main/pictures/box_GA.png" alt="box_GA" style="zoom: 80%;" />
+
+You can also run `evaluate_group_acc.py` to reproduce the GA evaluation.
