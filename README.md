@@ -93,4 +93,4 @@ You can also run `python draw.py` to generate all plots in the paper.
 
 Additionally, we compare the grouping accuracy as follows:
 
-<img src="\pictures\box_GA.png" alt="box_GA" style="zoom: 80%;" />
+<img src="https://github.com/Rachel-2000/GOLVID/blob/main/pictures/box_GA.png" alt="box_GA" style="zoom: 80%;" />
