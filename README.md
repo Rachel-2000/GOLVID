@@ -90,3 +90,7 @@ OpenStack:	 PA:	 0.997778	 PTA:	 0.950000	 RTA:	 0.950000
 ```
 
 You can also run `python draw.py` to generate all plots in the paper.
+
+Additionally, we compare the grouping accuracy as follows:
+
+<img src="\pictures\box_GA.png" alt="box_GA" style="zoom: 80%;" />

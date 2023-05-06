@@ -47,6 +47,19 @@ plt.boxplot([LenMa, Spell, Drain, Logram, LogPPT, LogDiv], labels=['Lenma', 'Spe
 plt.grid(axis='y', linestyle='--')
 plt.show()
 
+# GA
+LenMa = [99.8, 66.7, 86.9, 89.4, 31.6, 68.1, 94.3, 28.7, 23.8, 77.8, 16.6, 98.4, 49.5, 92.7, 21.3, 64.8]
+Spell = [100.0, 53.3, 92.0, 98.7, 85.0, 65.7, 85.6, 99.0, 16.2, 89.1, 96.1, 30.1, 52.7, 48.8, 24.5, 72.4]
+Drain = [99.8, 94.8, 90.5, 96.7, 95.5, 74.1, 96.0, 99.4, 42.2, 76.5, 64.4, 100.0, 52.7, 99.6, 22.4, 71.1]
+Loggram = [1.2, 28.3, 28.2, 72.4, 21.8, 74.2, 12.9, 69.4, 20.1, 67.7, 25.8, 29.7, 1.6, 34.3, 24.1, 55.1]
+LogPPT = [100.0, 99.4, 99.9, 95.4, 94.3, 67.9, 99.1, 93.4, 88.8, 100.0, 100.0, 100.0, 62.8, 98.9, 78.0]
+LogDiv = [89.0, 82.0, 96.4, 100.0, 99.4, 94.8, 81.4, 99.2, 100.0, 72.8, 89.4, 100.0, 100.0, 95.8, 100.0, 98.1]
+plt.title('Distribution of Grouping Accuracy (%)')
+plt.boxplot([LenMa, Spell, Drain, Logram, LogPPT, LogDiv], labels=['Lenma', 'Spell', 'Drain', 'Logram', 'LogPPT', 'LogDiv'], showmeans=True)
+plt.grid(axis='y', linestyle='--')
+plt.show()
+plt.savefig("GA.png")
+
 # Example Number
 
 x = [1, 3, 5, 7, 9]
