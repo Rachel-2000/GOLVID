@@ -106,6 +106,6 @@ Average grouping accuracy: 0.9365277777777778
 
 (Achieve the best GA in all baselines in the paper)
 
-<img src="https://github.com/Rachel-2000/GOLVID/blob/main/pictures/box_GA.png" alt="box_GA" style="zoom: 80%;" />
+<img src="pictures/box_GA.png" alt="box_GA" style="zoom: 80%;" />
 
 You can also run `evaluate_group_acc.py` to reproduce the GA evaluation.
